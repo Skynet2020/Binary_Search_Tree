@@ -1,5 +1,6 @@
 # Binary_Search_Tree
 Programming Fundamentals 3: Data Structure class
+
 Fall semester 2019, Austin Community College
 
 This project is an implementation of the Lab 6: Binary Search Tree.
