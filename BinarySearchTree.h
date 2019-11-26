@@ -1,9 +1,10 @@
 /*
 	1. setRootData() - Needs implementation. Do we need this function? Why not to use the parent class's?
-	2. How to rganize constructors? Is it possible to use the super class's constructors w/out redefining them
+	2. How to organize constructors? Is it possible to use the super class's constructors w/out redefining them
 		in the sub-class?
 	3. getEntry() - What's its purpose? We provide the value as a parameter, and the function returns exactly
 		the same value. So what's the purpose?
+    4. How to disable th setRootData()?
 */
  
 #ifndef BINARY_SEARCH_TREE_
@@ -23,10 +24,9 @@ template<class AnyType>
 class BinarySearchTree : public BinaryNodeTree<AnyType>
 {
 // use this->rootPtr to access the BinaryNodeTree rootPtr
-    typedef BinaryNode<AnyType> BinNode;
-    typedef BinaryNodeTree<AnyType> BNT;
+
     typedef shared_ptr<BinaryNode<AnyType>> NodePtr;
-    typedef shared_ptr<BinaryNodeTree<AnyType>> BNTPtr;
+
     
    
 protected:
@@ -70,7 +70,7 @@ public:
     //------------------------------------------------------------
     // Public Methods Section.
     //------------------------------------------------------------
-    //void setRootData(const AnyType& newData) override; // Do we need this function? Why not to use the parent class's?
+    void setRootData(const AnyType& newData) override;
     bool add(const AnyType& newEntry) override;
     bool remove(const AnyType& anEntry) override;
     AnyType getEntry(const AnyType& anEntry) const override;
@@ -105,6 +105,11 @@ placeNode(NodePtr subTreePtr, NodePtr newNode)
 {
     if (subTreePtr == nullptr)
         return newNode;
+
+    else if(subTreePtr->getItem() == newNode->getItem())
+    {
+        return subTreePtr;
+    }
 
     else
     {
@@ -178,7 +183,11 @@ removeNode(NodePtr nodePtr)
 	else if (hasOneChild)
 	{
 		if (leftIsNotEmpty)
-			nodeToConnect = nodePtr->getLeft();
+        {
+            nodeToConnect = nodePtr->getLeft();
+            return nodeToConnect;
+        }
+
 		else // if rightIsNotEmpty
 		{
 			nodeToConnect = nodePtr->getRight();
@@ -186,7 +195,7 @@ removeNode(NodePtr nodePtr)
 			return nodeToConnect;
 		}
 	}
-	else // subTree has two chidlren
+	else // subTree has two children
 	{
 		AnyType newNodeValue;
 		NodePtr tempPtr = removeLeftmostNode(nodePtr->getRight(), newNodeValue);
@@ -209,7 +218,14 @@ removeLeftmostNode(NodePtr subTreePtr, AnyType& inorderSuccessor)
 		return removeNode(subTreePtr);
 	}
 	else
-		return removeLeftmostNode(subTreePtr->getLeft(), inorderSuccessor);
+    {
+        NodePtr tempPtr = removeLeftmostNode(subTreePtr->getLeft(), inorderSuccessor);
+        subTreePtr->setLeft(tempPtr);
+        return subTreePtr;
+    }
+
+
+
 }
 
 //------------------------------------------------------
@@ -277,11 +293,11 @@ BinarySearchTree<AnyType>::BinarySearchTree(const AnyType& rootInitializer) : Bi
 //------------------------------------------------------
 //                   Set Root Data():
 //------------------------------------------------------
-//template <class AnyType>
-//void BinarySearchTree<AnyType>::setRootData(const AnyType& newData)
-//{
-//	// NEEDS IMPLEMENTATION
-//}
+template <class AnyType>
+void BinarySearchTree<AnyType>::setRootData(const AnyType& newData)
+{
+	throw PrecondViolatedExcep("setRootData() is not allowed in BinarySearchTree");
+}
 
 //------------------------------------------------------
 //                         Add():
@@ -294,13 +310,13 @@ bool BinarySearchTree<AnyType>::add(const AnyType& newEntry)
 		this->root = make_shared<BinaryNode<AnyType>>(newEntry);
 	}
 
-    else if (contains(newEntry))
-    {
-		string newEntryToString = to_string(newEntry);
-		throw PrecondViolatedExcep("The entry (" + newEntryToString
-			+ ") already exsists in the tree");
-        return false;
-    }   
+//    else if (contains(newEntry))
+//    {
+//		string newEntryToString = to_string(newEntry);
+//		throw PrecondViolatedExcep("The entry (" + newEntryToString
+//			+ ") already exsists in the tree");
+//        return false;
+//    }
 
     else
     {

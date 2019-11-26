@@ -82,29 +82,39 @@ int main(int argc, char** argv) {
     /***** TESTING THE BINARY SEARCH TREE CLASS *****/
     cout << "\n/***** TESTING THE BINARY SEARCH TREE CLASS *****/" << endl;
     
-	auto binSearchTree = make_shared<BinarySearchTree<int>>(1);	
+	auto binSearchTree = make_shared<BinarySearchTree<int>>();
     cout << "binSearchTree isEmpty(): " << binSearchTree->isEmpty() << endl;
-	cout << "New root value: " << binSearchTree->getRootData() << endl;
+//	cout << "New root value: " << binSearchTree->getRootData() << endl;
 	cout << "Addng values: 5, 7, 9, 4, 6" << endl;
 	binSearchTree->add(5);
 	binSearchTree->add(7);
 	binSearchTree->add(9);
 	binSearchTree->add(4);
 	binSearchTree->add(6);
+//    binSearchTree->add(5);
 	binSearchTree->inorderTraverse(display);
+	try{
+        binSearchTree->setRootData(66);
+	}
+	catch(PrecondViolatedExcep err)
+    {
+	    cout << err.what() << endl;
+    }
+
 
 	cout << "Tree height: " << binSearchTree->getHeight() << endl;
 	cout << "Contains 5?: " << binSearchTree->contains(5) << endl;
 	cout << "Contains 7?: " << binSearchTree->contains(7) << endl;
 
-	if (!binSearchTree->remove(6))
-	{
-		cout << "remove() returned false => wasn't successfull" << endl;
-	}
-	else
-	{
-		cout << "remove() returned true => was successfull" << endl;
-	}
+    binSearchTree->remove(5);
+//	if (!binSearchTree->remove(5))
+//	{
+//		cout << "remove() returned false => wasn't successfull" << endl;
+//	}
+//	else
+//	{
+//		cout << "remove() returned true => was successfull" << endl;
+//	}
 	binSearchTree->inorderTraverse(display);
 
     //cout << "root value: " << binSearchTree->getRootData() << endl; // CRUSHES ON EMPTY TREE
