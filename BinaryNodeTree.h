@@ -29,7 +29,7 @@ protected:
 	int getHeightHelper(NodePtr subTree) const;
 	int getNumberOfNodesHelper(NodePtr subTree) const;
 
-	// Recursiveley deletes all nodes from the tree:   
+	// Recursivley deletes all nodes from the tree:
 	NodePtr balancedAdd(NodePtr subTree, NodePtr newNode);
 	virtual NodePtr removeValue(NodePtr subTree, const AnyType target, bool& success);
 	NodePtr moveValuesUpTree(NodePtr subTree);
