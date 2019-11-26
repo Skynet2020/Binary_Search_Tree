@@ -11,4 +11,5 @@ Requirements for the data structure:
 3) add and remove functions must contain the Sorted treat of the tree.
 
 Consists of BinaryNode, BinaryNodeTree and BinarySearchTree major classes.
+
 Also contains PrecondViolatedExep and NotFound classes.
