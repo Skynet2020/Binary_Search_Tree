@@ -1,14 +1,6 @@
-/*
- * This file contains the implementation of the BinaryNodeTree class.
- */
-
-//#include "BinaryNode.h"
 #include "BinaryNodeTree.h"
-//#include "BinaryTreeInterface.h"
-//#include <memory>
-#include <iostream>
-#include <algorithm>
-using namespace std;
+
+//using namespace std;
 
 
 //------------------------------------------------------
@@ -36,7 +28,6 @@ using BNTPtr = shared_ptr<BinaryNodeTree<AnyType>>;
 template <class AnyType>
 BinaryNodeTree<AnyType>::BinaryNodeTree()
 {
-    cout << "Default Super Constructor was called" << endl;
     root = nullptr;
 }
 

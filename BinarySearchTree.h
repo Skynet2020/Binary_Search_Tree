@@ -57,44 +57,29 @@ protected:
    NodePtr findNode(NodePtr treePtr, const AnyType& target) const;
    
 public:
-    //------------------------------------------------------------
-    // Constructor and Destructor Section.
-    //------------------------------------------------------------
-    // inherits from BinaryNodeTree
-    BinarySearchTree(); // Default Constructor.
-    BinarySearchTree(const AnyType& rootInitializer);    
-    
-	//  !!! NEEDS WORK:
-    //  BinarySearchTree(const AnyType& rootInitializer, const BNTPtr leftTreePtr, const BNTPtr rightTreePtr);
-   
-    //------------------------------------------------------------
-    // Public Methods Section.
-    //------------------------------------------------------------
     void setRootData(const AnyType& newData) override;
     bool add(const AnyType& newEntry) override;
     bool remove(const AnyType& anEntry) override;
     AnyType getEntry(const AnyType& anEntry) const override;
     bool contains(const AnyType& anEntry) const override;
    
-}; // end BinarySearchTree
+};
 #endif
 
 
 /*******************************************************************************
-                            CLASS IMPLEMENTATION. 
- 1. Protected Methods Section:
-    - placeNode(NodePtr subTreePtr, NodePtr newNode)
-    - removeValue(NodePtr subTreePtr, const AnyType target, bool& success)
- 
- 2. Public <ethods Section
+ * 
+ *                          CLASS IMPLEMENTATION. 
+ * 
 *******************************************************************************/
 
 template <class AnyType>
 using NodePtr = shared_ptr<BinaryNode<AnyType>>;
 
-            
-/*********************    PROTECTED METHODS SECTION:   ************************/
 
+/*******************************************************************************
+*                            PROTECTED METHODS SECTION:									   *
+*******************************************************************************/
 
 //------------------------------------------------------
 //                      Place Node():
@@ -124,42 +109,48 @@ placeNode(NodePtr subTreePtr, NodePtr newNode)
             subTreePtr->setRight(tempPtr);
         }
     }    
-	return subTreePtr;
+    return subTreePtr;
 }
 
 //------------------------------------------------------
-//                    Remove Value():			!!! NEEDS TO BE FINISHED
+//                    Remove Value():
 //------------------------------------------------------
 template <class AnyType>
 NodePtr<AnyType> BinarySearchTree<AnyType>::
 removeValue(NodePtr subTreePtr, const AnyType target, bool& success)
 {
-	if (subTreePtr == nullptr)
-	{
-		success = false;
-		return subTreePtr;
-	}
-		
-	else if (subTreePtr->getItem() == target)
-	{
-		subTreePtr = removeNode(subTreePtr);
-		success = true;
-		return subTreePtr;
-	}
+    if (subTreePtr == nullptr)
+    {
+        success = false;
+        return subTreePtr;
+    }
 
-	else if (subTreePtr->getItem() > target) // Search the left subtree
-	{
-		NodePtr tempPtr = removeValue(subTreePtr->getLeft(), target, success);
-		subTreePtr->setLeft(tempPtr);
-		return subTreePtr;
-	}
+    else if (!contains(target))
+    {
+        cout << "The value is not in the tree" << endl;
+        return subTreePtr;
+    }
 
-	else // Search the right subtree
-	{
-		NodePtr tempPtr = removeValue(subTreePtr->getRight(), target, success);
-		subTreePtr->setRight(tempPtr);
-		return subTreePtr;
-	}
+    else if (subTreePtr->getItem() == target)
+    {
+        subTreePtr = removeNode(subTreePtr);
+        success = true;
+        return subTreePtr;
+    }
+
+    else if (subTreePtr->getItem() > target) // Search the left subtree
+    {
+        NodePtr tempPtr = removeValue(subTreePtr->getLeft(), target, success);
+        subTreePtr->setLeft(tempPtr);
+        return subTreePtr;
+    }
+
+    else // Search the right subtree
+    {
+        NodePtr tempPtr = removeValue(subTreePtr->getRight(), target, success);
+        subTreePtr->setRight(tempPtr);
+        return subTreePtr;
+    }
 }
 
 //------------------------------------------------------
@@ -168,41 +159,43 @@ removeValue(NodePtr subTreePtr, const AnyType target, bool& success)
 template <class AnyType>
 NodePtr<AnyType> BinarySearchTree<AnyType>::
 removeNode(NodePtr nodePtr)
-{
-	bool isLeaf = ((nodePtr->getLeft() == nullptr) && (nodePtr->getRight() == nullptr));
-	bool leftIsNotEmpty = (nodePtr->getLeft() != nullptr);
-	bool rightIsNotEmpty = (nodePtr->getRight() != nullptr);
-	bool hasOneChild = (leftIsNotEmpty || rightIsNotEmpty);
-	NodePtr nodeToConnect;
+{	
+    bool isLeaf = ((nodePtr->getLeft() == nullptr) && (nodePtr->getRight() == nullptr));
+    bool leftIsNotEmpty = (nodePtr->getLeft() != nullptr);
+    bool rightIsNotEmpty = (nodePtr->getRight() != nullptr);
+    bool hasOneChild = (leftIsNotEmpty==false || rightIsNotEmpty==false);
+    bool hasBothChildren = (leftIsNotEmpty && rightIsNotEmpty);
 
-	if (isLeaf)
-	{
-		nodePtr.reset();
-		return nodePtr;
-	}
-	else if (hasOneChild)
-	{
-		if (leftIsNotEmpty)
+    NodePtr nodeToConnect;
+
+
+    if (isLeaf)
+    {
+        nodePtr.reset();
+        return nodePtr;
+    }
+    else if (hasOneChild)
+    {
+        if (leftIsNotEmpty)
+    {
+        nodeToConnect = nodePtr->getLeft();
+    }
+
+        else // if rightIsNotEmpty
         {
-            nodeToConnect = nodePtr->getLeft();
-            return nodeToConnect;
+                nodeToConnect = nodePtr->getRight();			
         }
-
-		else // if rightIsNotEmpty
-		{
-			nodeToConnect = nodePtr->getRight();
-			nodePtr.reset();
-			return nodeToConnect;
-		}
-	}
-	else // subTree has two children
-	{
-		AnyType newNodeValue;
-		NodePtr tempPtr = removeLeftmostNode(nodePtr->getRight(), newNodeValue);
-		nodePtr->setRight(tempPtr);
-		nodePtr->setItem(newNodeValue);
-		return nodePtr;
-	}
+        nodePtr.reset();
+        return nodeToConnect;
+    }
+    else if (hasBothChildren) // subTree has two children
+    {
+        AnyType newNodeValue;
+        NodePtr tempPtr = removeLeftmostNode(nodePtr->getRight(), newNodeValue);
+        nodePtr->setRight(tempPtr);
+        nodePtr->setItem(newNodeValue);
+        return nodePtr;
+    }
 }
 
 //------------------------------------------------------
@@ -212,24 +205,21 @@ template <class AnyType>
 NodePtr<AnyType> BinarySearchTree<AnyType>::
 removeLeftmostNode(NodePtr subTreePtr, AnyType& inorderSuccessor)
 {
-	if (subTreePtr->getLeft() == nullptr)
-	{
-		inorderSuccessor = subTreePtr->getItem();
-		return removeNode(subTreePtr);
-	}
-	else
+    if (subTreePtr->getLeft() == nullptr) // Current node is the leftmost node.
+    {
+        inorderSuccessor = subTreePtr->getItem();
+        return removeNode(subTreePtr);
+    }
+    else // Current node is not the leftmost => apply this function to its left node (branch).
     {
         NodePtr tempPtr = removeLeftmostNode(subTreePtr->getLeft(), inorderSuccessor);
         subTreePtr->setLeft(tempPtr);
         return subTreePtr;
     }
-
-
-
 }
 
 //------------------------------------------------------
-//                  Find Node():                !!! NEEDS TESTING
+//                  Find Node():               
 //------------------------------------------------------
 template <class AnyType>
 NodePtr<AnyType> BinarySearchTree<AnyType>::
@@ -256,39 +246,9 @@ findNode(NodePtr treePtr, const AnyType& target) const
 }
 
 
-/***********************    PUBLIC METHODS SECTION:   *************************/
-
-//------------------------------------------------------
-//              Default Constructor:
-//------------------------------------------------------
-template <class AnyType>
-BinarySearchTree<AnyType>::BinarySearchTree() : BinaryNodeTree<AnyType>::BinaryNodeTree()
-{
-	
-}
-
-//------------------------------------------------------
-//              Parametrized Constructor #1:
-//------------------------------------------------------
-template <class AnyType>
-BinarySearchTree<AnyType>::BinarySearchTree(const AnyType& rootInitializer) : BinaryNodeTree<AnyType>::BinaryNodeTree(rootInitializer)
-{
-    BinaryNodeTree<AnyType>::root = make_shared<BinaryNode<AnyType>>(rootInitializer);    
-}
-
-//------------------------------------------------------
-//              Parametrized Constructor #2:            NEEDS WORK!!!
-//------------------------------------------------------
-//template <class AnyType>
-//BinarySearchTree<AnyType>::BinarySearchTree(const AnyType& rootInitializer,
-//                                            const BNTPtr leftTreePtr,
-//                                            const BNTPtr rightTreePtr)
-//{
-//    BinaryNodeTree<AnyType>::root = make_shared<BinaryNode<AnyType>>
-//    (rootInitializer, copyTree(leftTreePtr->root), copyTree(rightTreePtr->root));
-//}
-
-
+/*******************************************************************************
+*                             PUBLIC METHODS SECTION:									   *
+*******************************************************************************/
 
 //------------------------------------------------------
 //                   Set Root Data():
@@ -299,24 +259,17 @@ void BinarySearchTree<AnyType>::setRootData(const AnyType& newData)
 	throw PrecondViolatedExcep("setRootData() is not allowed in BinarySearchTree");
 }
 
+
 //------------------------------------------------------
 //                         Add():
 //------------------------------------------------------
 template <class AnyType>
 bool BinarySearchTree<AnyType>::add(const AnyType& newEntry)
 {
-	if (this->root == nullptr)
-	{
-		this->root = make_shared<BinaryNode<AnyType>>(newEntry);
-	}
-
-//    else if (contains(newEntry))
-//    {
-//		string newEntryToString = to_string(newEntry);
-//		throw PrecondViolatedExcep("The entry (" + newEntryToString
-//			+ ") already exsists in the tree");
-//        return false;
-//    }
+    if (this->root == nullptr)
+    {
+        this->root = make_shared<BinaryNode<AnyType>>(newEntry);
+    }
 
     else
     {
@@ -332,10 +285,10 @@ bool BinarySearchTree<AnyType>::add(const AnyType& newEntry)
 template <class AnyType>
 bool BinarySearchTree<AnyType>::remove(const AnyType& target)
 {
-    cout << "BinarySearchTree::" << "remove() was called" << endl;
 	bool success = false;
 	NodePtr rootPtr = removeValue(this->root, target, success);
-    return success;
+	
+	return success;
 }
 
 //------------------------------------------------------
@@ -344,9 +297,7 @@ bool BinarySearchTree<AnyType>::remove(const AnyType& target)
 template <class AnyType>
 AnyType BinarySearchTree<AnyType>::getEntry(const AnyType& anEntry) const
 {
-    cout << "BinarySearchTree::" << "getEntry() was called" << endl;
-    AnyType returnValue = anEntry;
-    return returnValue;
+    // STUB        
 }
 
 //------------------------------------------------------
@@ -359,10 +310,21 @@ bool BinarySearchTree<AnyType>::contains(const AnyType& anEntry) const
         return false;
     else
     {
-		NodePtr tempPtr = findNode(this->root, anEntry);
-		if (tempPtr != nullptr)
-			return true;
-		else
-			return false;
+        NodePtr tempPtr = findNode(this->root, anEntry);
+        if (tempPtr != nullptr)
+                return true;
+        else
+                return false;
     }    
 }
+
+
+
+
+
+
+
+
+
+
+
